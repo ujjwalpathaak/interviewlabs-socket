@@ -4,6 +4,7 @@ const io = new Server({
   cors: true,
 });
 
+// URL -> https://interviewlabs-socket.onrender.com
 const nameToSocketMapping = new Map();
 const socketToNameMapping = new Map();
 
