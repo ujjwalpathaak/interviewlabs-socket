@@ -3,8 +3,6 @@ const io = new Server(process.env.PORT || 9000, {
   cors: true,
 });
 
-// URL -> https://interviewlabs-socket.onrender.com
-
 let nameToSocketMapping = new Map();
 let socketToNameMapping = new Map();
 
@@ -44,6 +42,7 @@ io.on("connection", (socket) => {
     const fromName = socketToNameMapping.get(socket.id);
     socket.to(socketId).emit("nego-incomming-call", { from: fromName, offer });
   });
+
   socket.on("nego-call-accepted", (data) => {
     const { name, ans } = data;
     const socketId = nameToSocketMapping.get(name);
