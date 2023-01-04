@@ -1,36 +1,52 @@
 import { Server } from "socket.io";
-const PORT = process.env.PORT || 9000
-const io = new Server({
+const io = new Server(process.env.PORT || 9000, {
   cors: true,
 });
 
 // URL -> https://interviewlabs-socket.onrender.com
-const nameToSocketMapping = new Map();
-const socketToNameMapping = new Map();
+
+let nameToSocketMapping = new Map();
+let socketToNameMapping = new Map();
 
 io.on("connection", (socket) => {
-  socket.on("join-room", (data) => {
+  socket.on("newRoom-created", (data) => {
     const { roomId, name } = data;
-    console.log("user ", name, "joined room", roomId);
     nameToSocketMapping.set(name, socket.id);
     socketToNameMapping.set(socket.id, name);
     socket.join(roomId);
-    socket.emit("joined-room", { roomId });
-    socket.broadcast.to(roomId).emit("user-joined", { name });
+    socket.emit("newRoom-created", { roomId, name });
   });
+
+  socket.on("join-room", (data) => {
+    const { roomId, name } = data;
+    nameToSocketMapping.set(name, socket.id);
+    socketToNameMapping.set(socket.id, name);
+    socket.join(roomId);
+    socket.broadcast.to(roomId).emit("newUser-joined", { name });
+  });
+
   socket.on("call-user", (data) => {
     const { name, offer } = data;
     const socketId = nameToSocketMapping.get(name);
-    const froEmail = socketToNameMapping.get(socket.id);
-    socket.to(socketId).emit("incomming-call", { from: froEmail, offer });
+    const fromName = socketToNameMapping.get(socket.id);
+    socket.to(socketId).emit("incomming-call", { from: fromName, offer });
   });
+
   socket.on("call-accepted", (data) => {
     const { name, ans } = data;
     const socketId = nameToSocketMapping.get(name);
-    socket.to(socketId).emit("call-accepted", { ans });
+    socket.to(socketId).emit("calling-accepted", { ans });
   });
-});
 
-io.listen(PORT, () => {
-  console.log(`Socket server running on ${PORT}`);
+  socket.on("nego-call-user", (data) => {
+    const { name, offer } = data;
+    const socketId = nameToSocketMapping.get(name);
+    const fromName = socketToNameMapping.get(socket.id);
+    socket.to(socketId).emit("nego-incomming-call", { from: fromName, offer });
+  });
+  socket.on("nego-call-accepted", (data) => {
+    const { name, ans } = data;
+    const socketId = nameToSocketMapping.get(name);
+    socket.to(socketId).emit("nego-calling-accepted", { ans });
+  });
 });
