@@ -7,6 +7,11 @@ let nameToSocketMapping = new Map();
 let socketToNameMapping = new Map();
 
 io.on("connection", (socket) => {
+  socket.on("get-me", () => {
+    let id = socket.id
+    socket.emit("me", {id});
+  });
+
   socket.on("newRoom-created", (data) => {
     const { roomId, name } = data;
     nameToSocketMapping.set(name, socket.id);
