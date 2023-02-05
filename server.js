@@ -3,8 +3,8 @@ const io = new Server(process.env.PORT || 9000, {
   cors: true,
 });
 
-let nameToSocketMapping = new Map();
-let socketToNameMapping = new Map();
+// let nameToSocketMapping = new Map();
+// let socketToNameMapping = new Map();
 
 // io.on("connection", (socket) => {
 //   socket.on("get-me", () => {
